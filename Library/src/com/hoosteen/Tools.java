@@ -13,7 +13,7 @@ import javax.swing.JTextArea;
  * @author justin
  *
  */
-public class Tools {
+public class Tools  {
 	
 	/**
 	 * @param arr - Array to print
