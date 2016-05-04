@@ -108,12 +108,22 @@ public class GraphicsWrapper {
 		g.drawLine(x1, y1, x2, y2);
 	}
 	
+	public void fillRect(Rect r, Color c){
+		g.setColor(c);
+		r.fill(g);
+	}
+	
 	/**
 	 * Fills a rectangle
 	 * @param r - Rect to fill
 	 */
 	public void fillRect(Rect r){
 		r.fill(g);
+	}
+	
+	public void drawRect(Rect r, Color c) {
+		g.setColor(c);
+		r.draw(g);
 	}
 	
 	/**
