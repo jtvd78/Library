@@ -30,10 +30,9 @@ public abstract class Node implements Serializable, Iterable<Node>, Comparable<N
 	private static final long serialVersionUID = -1368886684838764885L;
 	
 	
-	protected Node parent;	
+	private Node parent;	
 	private boolean hidden = true;
 	private boolean expanded = false;
-	private boolean selected = false;	
 	
 	/**
 	 * List of every node contained within this node
@@ -54,7 +53,7 @@ public abstract class Node implements Serializable, Iterable<Node>, Comparable<N
 	 * @param adj - Number of indexes to move
 	 */
 	public void move(int adj){
-		parent.moveChildNode(this, adj);
+		getParent().moveChildNode(this, adj);
 	}	
 	
 	/**
@@ -79,7 +78,7 @@ public abstract class Node implements Serializable, Iterable<Node>, Comparable<N
 	 * @return The index
 	 */
 	public int index(){
-		return parent.getIndex(this);
+		return getParent().getIndex(this);
 	}
 	
 	/**
@@ -90,7 +89,7 @@ public abstract class Node implements Serializable, Iterable<Node>, Comparable<N
 		if(index == 0){
 			return null;
 		}
-		return parent.getNode(index-1);
+		return getParent().getNode(index-1);
 	}
 	
 	/**
@@ -98,10 +97,10 @@ public abstract class Node implements Serializable, Iterable<Node>, Comparable<N
 	 */
 	public Node getNodeBelow(){
 		int index = index();
-		if(index+1 == parent.size()){
+		if(index+1 == getParent().size()){
 			return null;
 		}
-		return parent.getNode(index+1);
+		return getParent().getNode(index+1);
 	}
 	
 	/**
@@ -109,15 +108,7 @@ public abstract class Node implements Serializable, Iterable<Node>, Comparable<N
 	 */
 	public Iterator<Node> iterator() {
 		return nodeList.iterator();
-	}
-	
-	/**
-	 * @return If currently selected by the mouse. 
-	 */
-	public boolean isSelected(){
-		return selected;
-	}
-	
+	}	
 	
 	/**
 	 * Alphabetically sorts the nodes in the this node by their toString
@@ -125,36 +116,7 @@ public abstract class Node implements Serializable, Iterable<Node>, Comparable<N
 	public void sortAlphabetical(){
 		Collections.sort(nodeList);
 	}
-	
-	
-	/**
-	 * Sets the value of selected to the parameter
-	 * Also sets the child nodes to the same value
-	 * @param selected - True or false
-	 */
-	public void setSelected(boolean selected){
-		this.selected = selected;
-		for(Node n : this){
-			n.setSelected(selected);
-		}
-	}	
-	
-	/**
-	 * A node is transparent if its parent is transparent, or if it is currently selected. 
-	 * @return boolean, transparent or not. 
-	 */
-	public boolean isTransparent(){
-		
-		//The top node is never transparent
-		//I wouldn't say never, but for the purposes of this class, it wont
-		//I will come back and change this if I need to. 
-		if(getLevel() == 0){
-			return false;
-		}
-		
-		return selected || parent.isTransparent();
-	}
-	
+
 	/**
 	 * Sets hidden to the opposite of its current value
 	 */
@@ -188,10 +150,10 @@ public abstract class Node implements Serializable, Iterable<Node>, Comparable<N
 	 * A Node with no parent will return 0
 	 */
 	public int getLevel(){
-		if(parent == null){
+		if(getParent() == null){
 			return 0;
 		}
-		return 1+parent.getLevel();
+		return 1+getParent().getLevel();
 	}	
 	
 	/**
@@ -220,6 +182,11 @@ public abstract class Node implements Serializable, Iterable<Node>, Comparable<N
 	 * @return Returns node at a specific index
 	 */
 	public Node getNode(int index){
+		
+		if(index < 0 || index >= nodeList.size()){
+			return null;
+		}
+		
 		return nodeList.get(index);
 	}	
 	
@@ -294,11 +261,11 @@ public abstract class Node implements Serializable, Iterable<Node>, Comparable<N
 		
 		int out = 0;
 		
-		int index = parent.getIndex(this);
+		int index = getParent().getIndex(this);
 		for(int i = 0; i < index; i++){
-			out += parent.getNode(i).getExpandedNodeCount();
+			out += getParent().getNode(i).getExpandedNodeCount();
 		}		
-		return parent.getIndex(this)+out+parent.getNodeNumber()+1;
+		return getParent().getIndex(this)+out+getParent().getNodeNumber()+1;
 	}
 	
 	/**
@@ -352,11 +319,11 @@ public abstract class Node implements Serializable, Iterable<Node>, Comparable<N
 	 * Removes this node from its parent, then removes the parent itself if it is empty. 
 	 */	
 	public void remove() {
-		parent.removeNode(this);
+		getParent().removeNode(this);
 		
 		//After removing this node, if the parent node is empty, remove the parent node as well. 
-		if(parent.nodeList.size() == 0){
-			parent.remove();
+		if(getParent().nodeList.size() == 0){
+			getParent().remove();
 		}
 	}
 	
@@ -373,7 +340,7 @@ public abstract class Node implements Serializable, Iterable<Node>, Comparable<N
 	public Node getTopNode(){
 		Node topNode = this;
 		while(topNode.getLevel() != 0){
-			topNode = topNode.parent;
+			topNode = topNode.getParent();
 		}
 		return topNode;
 	}	
@@ -395,5 +362,9 @@ public abstract class Node implements Serializable, Iterable<Node>, Comparable<N
 				Tools.displayText(getDescription(), toString());
 			}	
 		});
+	}
+
+	public Node getParent() {
+		return parent;
 	}
 }

@@ -9,5 +9,4 @@ public class FileComp extends TreeComp{
 	public FileComp(JFrame parentFrame, FileNode root) {
 		super(parentFrame, root);
 	}
-
 }

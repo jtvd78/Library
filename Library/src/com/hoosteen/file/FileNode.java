@@ -68,4 +68,16 @@ public class FileNode extends Node{
 			popupMenu.add(item);
 		}
 	}
+	
+	public File getFile(){
+		return file;
+	}
+}
+
+
+class SoundFileNode extends FileNode{
+
+	public SoundFileNode(File file) {
+		super(file);
+	}
 }
