@@ -26,7 +26,7 @@ import com.hoosteen.graphics.Rect;
 public class TreeComp extends JScrollPane {
 
 	// Root node
-	Node root;
+	Tree tree;
 
 	// The frame that is the eventual parent of this node
 	JFrame parentFrame;
@@ -77,9 +77,9 @@ public class TreeComp extends JScrollPane {
 	private final Color nodeOutlineColor = Color.GRAY;
 	private final Color selectedNodeColor = new Color(200, 200, 255, 150);
 
-	public TreeComp(JFrame parentFrame, Node root) {
+	public TreeComp(JFrame parentFrame, Tree tree) {
 
-		this.root = root;
+		this.tree = tree;
 		this.parentFrame = parentFrame;
 		this.inner = new InnerTreeComp();
 
@@ -152,7 +152,7 @@ public class TreeComp extends JScrollPane {
 			g.fillRect(new Rect(0, 0, getWidth(), getHeight()));
 
 			// Draw Tree, draw children
-			g.drawNode(root, true);
+			g.drawNode(tree.getRoot(), true);
 
 			// Draw dragging node on top of tree
 			// Do not draw children
@@ -178,7 +178,7 @@ public class TreeComp extends JScrollPane {
 		 * preferred size Should be called whenever the height of the tree changes
 		 */
 		private void updateScrollPaneDimensions() {
-			setPreferredSize(new Dimension(getWidth(), nodeHeight * root.getExpandedNodeCount()));
+			setPreferredSize(new Dimension(getWidth(), nodeHeight * tree.getExpandedNodeCount()));
 
 			// fix this?
 			revalidate();
@@ -187,18 +187,18 @@ public class TreeComp extends JScrollPane {
 		// Start Rect/Circle stuff
 		private Circle getRemoveCircle(Node n) {
 			int x = getWidth() - 5 - circleRadius;
-			int y = (n.getNodeNumber() + 1) * nodeHeight - nodeHeight / 2;
+			int y = (tree.getNodeNumber(n) + 1) * nodeHeight - nodeHeight / 2;
 			return new Circle(x, y, circleRadius);
 		}
 
 		private Rect getExpandRect(Node n) {
 			return new Rect((n.getLevel() - 1) * levelSpacing + (levelSpacing) / 2 - boxSize / 2,
-					n.getNodeNumber() * nodeHeight + nodeHeight / 2 - boxSize / 2, boxSize, boxSize);
+					tree.getNodeNumber(n) * nodeHeight + nodeHeight / 2 - boxSize / 2, boxSize, boxSize);
 		}
 
 		private Rect getNodeRect(Node n) {
 			int x = n.getLevel() * levelSpacing;
-			return new Rect(x, n.getNodeNumber() * nodeHeight, getWidth() - x - 1, nodeHeight);
+			return new Rect(x, tree.getNodeNumber(n) * nodeHeight, getWidth() - x - 1, nodeHeight);
 		}
 		// End Rect/Cicle Stuff
 
@@ -247,9 +247,6 @@ public class TreeComp extends JScrollPane {
 					setColor(fgColor);
 					drawRect(nodeRect, 3);
 				}
-
-				// Node border
-				drawRect(nodeRect, nodeOutlineColor);
 
 				// Draw node text
 				setColor(textColor);
@@ -306,6 +303,9 @@ public class TreeComp extends JScrollPane {
 					int x = nodeRect.getX() + nodeRect.getWidth();
 					int weight = 2;
 
+					
+					
+					
 					int oneFourth = nodeHeight / 4;
 					int threeFourths = 3 * nodeHeight / 4;
 					int y = nodeRect.getY();
@@ -313,6 +313,9 @@ public class TreeComp extends JScrollPane {
 					int x1 = x - threeFourths;
 					int x2 = x - oneFourth;
 
+					fillRect(x - nodeHeight, y, nodeHeight, nodeHeight , bgColor);
+					setColor(fgColor);
+					
 					for (int i = 0; i < weight; i++) {
 
 						// Backslash
@@ -326,6 +329,9 @@ public class TreeComp extends JScrollPane {
 
 					}
 				}
+				
+				// Node border
+				drawRect(nodeRect, nodeOutlineColor);
 			}
 
 			/**
@@ -378,7 +384,7 @@ public class TreeComp extends JScrollPane {
 				}
 
 				Node clickedNode;
-				if ((clickedNode = root.getVisibleNode(e.getY() / nodeHeight)) == null) {
+				if ((clickedNode = tree.getVisibleNode(e.getY() / nodeHeight)) == null) {
 					selectNode(null);
 
 					// If the clicked node is null, that means that no node was
@@ -445,7 +451,7 @@ public class TreeComp extends JScrollPane {
 			public void mousePressed(MouseEvent e) {
 
 				Node clickedNode;
-				if ((clickedNode = root.getVisibleNode(e.getY() / nodeHeight)) == null) {
+				if ((clickedNode = tree.getVisibleNode(e.getY() / nodeHeight)) == null) {
 					selectNode(null);
 					// If the clicked node is null, that means that no node was
 					// clicked on
@@ -453,7 +459,7 @@ public class TreeComp extends JScrollPane {
 				}
 
 				int button = e.getButton();
-
+ 
 				Rect nodeRect = getNodeRect(clickedNode);
 				Rect expandRect = getExpandRect(clickedNode);
 
@@ -462,7 +468,7 @@ public class TreeComp extends JScrollPane {
 
 					// Hit Remove circle:
 					if (getRemoveCircle(clickedNode).contains(e.getX(), e.getY()) && e.getButton() == 1) {
-						clickedNode.remove();
+						Tree.remove(clickedNode);
 						parentFrame.repaint();
 						return;
 					}
@@ -502,13 +508,13 @@ public class TreeComp extends JScrollPane {
 
 					// Select the previous node
 					case KeyEvent.VK_UP:
-						selectNode(root.getVisibleNode(selectedNode.getNodeNumber() - 1));
+						selectNode(tree.getVisibleNode(tree.getNodeNumber(selectedNode) - 1));
 
 						break;
 
 					// Select the next node
 					case KeyEvent.VK_DOWN:
-						selectNode(root.getVisibleNode(selectedNode.getNodeNumber() + 1));
+						selectNode(tree.getVisibleNode(tree.getNodeNumber(selectedNode) + 1));
 
 						break;
 
@@ -525,11 +531,11 @@ public class TreeComp extends JScrollPane {
 					// the bottom of the tree
 					switch (e.getKeyCode()) {
 					case KeyEvent.VK_UP:
-						selectNode(root.getVisibleNode(root.getExpandedNodeCount() - 1));
+						selectNode(tree.getVisibleNode(tree.getExpandedNodeCount() - 1));
 
 						break;
 					case KeyEvent.VK_DOWN:
-						selectNode(root.getVisibleNode(0));
+						selectNode(tree.getVisibleNode(0));
 
 						break;
 					}

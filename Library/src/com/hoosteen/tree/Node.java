@@ -6,6 +6,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.PriorityQueue;
+import java.util.Queue;
 
 import javax.swing.AbstractAction;
 import javax.swing.JPopupMenu;
@@ -23,13 +25,7 @@ import com.hoosteen.Tools;
  *
  */
 public abstract class Node implements Serializable, Iterable<Node>, Comparable<Node>{
-	
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -1368886684838764885L;
-	
-	
+		
 	private Node parent;	
 	private boolean hidden = true;
 	private boolean expanded = false;
@@ -245,61 +241,6 @@ public abstract class Node implements Serializable, Iterable<Node>, Comparable<N
 	public int size(){
 		return nodeList.size();
 	}
-
-	/**
-	 * @return Returns the index of the node, relative to the first node.
-	 *  Essentially, it is the number of nodes from the top that this node is
-	 */
-	public int getNodeNumber(){ 
-		
-		//This just means that the top node (which should not be visible),
-		//has a visible node number of -1
-		//so it is not displayed. 
-		if(getLevel() == 0){
-			return -1;
-		}
-		
-		int out = 0;
-		
-		int index = getParent().getIndex(this);
-		for(int i = 0; i < index; i++){
-			out += getParent().getNode(i).getExpandedNodeCount();
-		}		
-		return getParent().getIndex(this)+out+getParent().getNodeNumber()+1;
-	}
-	
-	/**
-	 * Returns the visible node under this node, which corresponds to the argument nodeIndex. 
-	 * Starts with 0
-	 * @param nodeIndex - Node number to get
-	 * @return The desired node
-	 */
-	public Node getVisibleNode(int nodeIndex){		
-		for(Node n : nodeList){			
-			//This is the desired node, return this node.
-			if(nodeIndex == 0){
-				return n;
-			}
-			
-			//to account for current node
-			nodeIndex -= 1; 
-			
-			//Total number of node visible within this node
-			int count = n.getExpandedNodeCount();
-			
-			//If there are visible nodes within this node
-			if(count > 0){
-				if(nodeIndex >= count){
-					nodeIndex -= count; // Skip to the next n since we need to go farther down
-				}else{
-					return n.getVisibleNode(nodeIndex); //Desired node is within this node
-				}
-			}			
-		}
-		
-		//No Visible node found
-		return null;
-	}	
 	
 	/**
 	 * @return number of nodes visible which are contained within this node.
@@ -313,26 +254,7 @@ public abstract class Node implements Serializable, Iterable<Node>, Comparable<N
 			}			
 		}
 		return ctr;
-	}
-
-	/**
-	 * Removes this node from its parent, then removes the parent itself if it is empty. 
-	 */	
-	public void remove() {
-		getParent().removeNode(this);
-		
-		//After removing this node, if the parent node is empty, remove the parent node as well. 
-		if(getParent().nodeList.size() == 0){
-			getParent().remove();
-		}
-	}
-	
-	/**
-	 * @return Description of the current node. Defaults to toString(), but can be overrided. 
-	 */
-	public String getDescription(){
-		return toString();
-	}
+	}	
 	
 	/**
 	 * @return The topmost node in the Node Hierarchy. Level of the returned node is 0
@@ -350,16 +272,10 @@ public abstract class Node implements Serializable, Iterable<Node>, Comparable<N
 		return toString().compareTo(o.toString());
 	}
 
-	public void addPopupMenuOptions(JPopupMenu popupMenu) {		
-		
-		popupMenu.add(new AbstractAction("Show Description"){
-			/**
-			 * 
-			 */
-			private static final long serialVersionUID = -8281103669957533376L;
-
+	public void addPopupMenuOptions(JPopupMenu popupMenu){
+		popupMenu.add(new AbstractAction("Remove"){
 			public void actionPerformed(ActionEvent e) {
-				Tools.displayText(getDescription(), toString());
+				Tree.remove(Node.this);
 			}	
 		});
 	}

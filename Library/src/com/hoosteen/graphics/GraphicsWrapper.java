@@ -142,6 +142,11 @@ public class GraphicsWrapper {
 		c.draw(g);		
 	}
 	
+	public void fillRect(int x, int y, int width, int height, Color c){
+		g.setColor(c);
+		g.fillRect(x, y, width, height);
+	}
+	
 	/**
 	 * Draws a rectangle with a given outline width
 	 * @param r - Rectangle to draw
