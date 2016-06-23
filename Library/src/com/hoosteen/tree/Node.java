@@ -170,7 +170,7 @@ public abstract class Node implements Serializable, Iterable<Node>, Comparable<N
 	 * Sets expanded to the opposite of its current state
 	 */
 	public void toggleExpanded(){
-		expanded = !expanded;
+		setExpanded(!expanded);
 	}
 	
 	/**

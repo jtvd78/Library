@@ -15,7 +15,7 @@ public class FileNode extends Node{
 	boolean childrenLoaded;
 	
 	public FileNode(File file) {
-		super(true);
+		super(false);
 		
 		this.file = file;
 		
@@ -26,9 +26,41 @@ public class FileNode extends Node{
 			directory = false;
 			childrenLoaded = true;
 		}
+	}
+	
+	@Override
+	public int size(){
+		if(childrenLoaded){
+			return super.size();
+		}else{
+			String[] list = file.list();
+			if(list != null){
+				return list.length;
+			}else{
+				return 0;
+			}
+		}
+	}
+	
+	@Override
+	public void setExpanded(boolean expanded){
 		
-		loadChildren();
-		
+		if(!childrenLoaded && expanded){
+			Runnable r = new Runnable(){
+
+				@Override
+				public void run() {
+					
+					loadChildren();
+					FileNode.super.setExpanded(expanded);
+				}
+				
+			};
+			
+			new Thread(r).start();
+		}else{
+			super.setExpanded(expanded);
+		}
 	}
 	
 	@Override
@@ -41,7 +73,7 @@ public class FileNode extends Node{
 			return;
 		}
 		
-		for(File f : file.listFiles()){
+		for(File f : file.listFiles()){			
 			addNode(new FileNode(f));
 		}
 		

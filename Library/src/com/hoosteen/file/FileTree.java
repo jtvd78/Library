@@ -6,5 +6,6 @@ public class FileTree extends Tree{
 
 	public FileTree(FileNode root) {
 		super(root);
+		root.setExpanded(true);
 	}
 }
