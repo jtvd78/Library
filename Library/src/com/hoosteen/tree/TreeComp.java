@@ -33,7 +33,7 @@ public class TreeComp extends JScrollPane {
 
 	// The "actual" tree comp which is within the JScrollPane
 	InnerTreeComp inner;
-
+	
 	// These variables are used whenever a node is being dragged.
 	int draggingOffsetX = 0;
 	int draggingOffsetY = 0;
@@ -45,6 +45,9 @@ public class TreeComp extends JScrollPane {
 	// Node currently being dragged. If there is no node being dragged
 	// currently, this should be null
 	Node draggingNode = null;
+	
+	//The remove X's will only appear/work if this is true
+	boolean nodeRemoval = true;
 
 	// The popupMenu being used by any treeComp
 	static JPopupMenu popupMenu = new JPopupMenu();
@@ -296,7 +299,7 @@ public class TreeComp extends JScrollPane {
 				}
 
 				// Don't draw X if you're dragging the node
-				if (node != draggingNode) {
+				if (nodeRemoval && node != draggingNode) {
 
 					// Draws X
 					setColor(removeXColor);
@@ -467,7 +470,7 @@ public class TreeComp extends JScrollPane {
 				if (nodeRect.contains(e.getX(), e.getY())) {
 
 					// Hit Remove circle:
-					if (getRemoveCircle(clickedNode).contains(e.getX(), e.getY()) && e.getButton() == 1) {
+					if (nodeRemoval && getRemoveCircle(clickedNode).contains(e.getX(), e.getY()) && e.getButton() == 1) {
 						Tree.remove(clickedNode);
 						parentFrame.repaint();
 						return;
@@ -593,6 +596,10 @@ public class TreeComp extends JScrollPane {
 	 */
 	private void nodeLeftClicked(Node n) {
 		selectNode(n);
+		
+		for (NodeEventListener listener : nodeListenerList) {
+			listener.nodeLeftClicked(new NodeEvent(n));
+		}
 	}
 
 	/**
@@ -644,5 +651,9 @@ public class TreeComp extends JScrollPane {
 
 	public Node getSelectedNode() {
 		return selectedNode;
+	}
+	
+	public void allowNodeRemoval(boolean value){
+		nodeRemoval = value;
 	}
 }

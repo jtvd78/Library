@@ -80,25 +80,8 @@ public class FileNode extends Node{
 		childrenLoaded = true;
 	}
 	
-	ArrayList<JMenuItem> menuItems = new ArrayList<JMenuItem>();
-	
 	public void addNode(Node n){
-		super.addNode(n);
-		
-		
-	}
-	
-	public void addRightClickOption(JMenuItem item){
-		menuItems.add(item);
-	}
-	
-	@Override
-	public void addPopupMenuOptions(JPopupMenu popupMenu){
-		super.addPopupMenuOptions(popupMenu);
-		
-		for(JMenuItem item : menuItems){
-			popupMenu.add(item);
-		}
+		super.addNode(n);		
 	}
 	
 	public File getFile(){

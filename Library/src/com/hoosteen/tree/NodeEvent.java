@@ -8,7 +8,7 @@ public class NodeEvent {
 		this.node = node;
 	}
 
-	public Object getNode() {
+	public Node getNode() {
 		return node;
 	}
 

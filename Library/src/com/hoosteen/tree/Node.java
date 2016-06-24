@@ -10,6 +10,7 @@ import java.util.PriorityQueue;
 import java.util.Queue;
 
 import javax.swing.AbstractAction;
+import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
 import com.hoosteen.Tools;
@@ -265,11 +266,17 @@ public abstract class Node implements Serializable, Iterable<Node>, Comparable<N
 			topNode = topNode.getParent();
 		}
 		return topNode;
-	}	
+	}
 	
 	@Override
 	public int compareTo(Node o) {
 		return toString().compareTo(o.toString());
+	}
+	
+	ArrayList<JMenuItem> menuItems = new ArrayList<JMenuItem>();
+	
+	public void addRightClickOption(JMenuItem item){
+		menuItems.add(item);
 	}
 
 	public void addPopupMenuOptions(JPopupMenu popupMenu){
@@ -278,6 +285,10 @@ public abstract class Node implements Serializable, Iterable<Node>, Comparable<N
 				Tree.remove(Node.this);
 			}	
 		});
+		
+		for(JMenuItem item : menuItems){
+			popupMenu.add(item);
+		}
 	}
 
 	public Node getParent() {
