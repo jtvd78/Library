@@ -40,13 +40,67 @@ public class GraphicsWrapper {
 		g.drawString(s, r.getX() + 5, y);
 	}
 	
+	public enum HorizontalAlignment{
+		LEFT, CENTER, RIGHT
+	}
+	
+	public enum VerticalAlignment{
+		TOP, MIDDLE, BOTTOM
+	}
+	
+	public void drawCenteredString(String s, Rect r, HorizontalAlignment hori, VerticalAlignment vert ){
+		
+		Rectangle2D bounds = fm.getStringBounds(s, g);
+		
+		
+		int centerX = r.getX() + r.getWidth() / 2;
+		int centerY = r.getY() + r.getHeight() / 2;
+		
+		int x = 0;
+		int y = 0;
+		
+		switch(hori){
+		case CENTER:	x = (int)(centerX - bounds.getWidth()/2); 					break;
+		case LEFT:		x = r.getX();												break;
+		case RIGHT:		x = (int) (r.getX() + r.getWidth() - bounds.getWidth()); 	break;
+		}
+		
+		int amt = -(fm.getAscent() + fm.getDescent())/2 + fm.getAscent();
+		
+		switch(vert){
+		case BOTTOM:	y = r.getY() + r.getHeight() - fm.getDescent();				break;
+		case MIDDLE:	y = centerY + amt;											break;
+		case TOP:		y = r.getY() + fm.getAscent();								break;
+		
+		}
+		
+		g.drawString(s, x, y);
+		
+		
+	}
+	
 	/**
 	 * Draws a string, centered within:
 	 * @param s - string to draw
 	 * @param r - rect to center within
 	 */
-	public void drawCenteredString(String s, Rect r){		
+	public void drawCenteredString(String s, Rect r){
 		drawCenteredString(s, r.getX() + r.getWidth() / 2, r.getY() + r.getHeight()/2);
+	}
+	
+	/**
+	 * Draws a string centered on the point (centerX, centerY)
+	 * @param s	String to draw
+	 * @param centerX - X Coordinate to center string on 
+	 * @param centerY - Y Coordinate to center string on 
+	 */
+	public void drawCenteredString(String s, int centerX, int centerY){		
+		Rectangle2D bounds = fm.getStringBounds(s, g);
+		
+		int x = (int)(centerX - bounds.getWidth()/2);
+		int y = (int)(centerY - (fm.getAscent() + fm.getDescent())/2 + fm.getAscent());
+		
+		g.drawString(s, x, y);
 	}
 	
 	/**
@@ -72,20 +126,7 @@ public class GraphicsWrapper {
 		}
 	}
 	
-	/**
-	 * Draws a string centered on the point (centerX, centerY)
-	 * @param s	String to draw
-	 * @param centerX - X Coordinate to center string on 
-	 * @param centerY - Y Coordinate to center string on 
-	 */
-	public void drawCenteredString(String s, int centerX, int centerY){		
-		Rectangle2D bounds = fm.getStringBounds(s, g);
-		
-		int x = (int)(centerX - bounds.getWidth()/2);
-		int y = (int)(centerY - (fm.getAscent() + fm.getDescent())/2 + fm.getAscent());
-		
-		g.drawString(s, x, y);
-	}
+
 	
 	/**
 	 * Sets the color to draw

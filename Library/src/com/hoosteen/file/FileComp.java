@@ -6,7 +6,8 @@ import com.hoosteen.tree.TreeComp;
 
 public class FileComp extends TreeComp{
 
-	public FileComp(JFrame parentFrame, FileTree fileTreeRoot) {
+	public FileComp(JFrame parentFrame, FileNode fileTreeRoot) {
 		super(parentFrame, fileTreeRoot);
+		fileTreeRoot.setExpanded(true);
 	}
 }

@@ -26,7 +26,7 @@ import com.hoosteen.graphics.Rect;
 public class TreeComp extends JScrollPane {
 
 	// Root node
-	Tree tree;
+	Node root;
 
 	// The frame that is the eventual parent of this node
 	JFrame parentFrame;
@@ -80,9 +80,9 @@ public class TreeComp extends JScrollPane {
 	private final Color nodeOutlineColor = Color.GRAY;
 	private final Color selectedNodeColor = new Color(200, 200, 255, 150);
 
-	public TreeComp(JFrame parentFrame, Tree tree) {
+	public TreeComp(JFrame parentFrame, Node root) {
 
-		this.tree = tree;
+		this.root = root;
 		this.parentFrame = parentFrame;
 		this.inner = new InnerTreeComp();
 
@@ -155,7 +155,7 @@ public class TreeComp extends JScrollPane {
 			g.fillRect(new Rect(0, 0, getWidth(), getHeight()));
 
 			// Draw Tree, draw children
-			g.drawNode(tree.getRoot(), true);
+			g.drawNode(root, true);
 
 			// Draw dragging node on top of tree
 			// Do not draw children
@@ -181,7 +181,7 @@ public class TreeComp extends JScrollPane {
 		 * preferred size Should be called whenever the height of the tree changes
 		 */
 		private void updateScrollPaneDimensions() {
-			setPreferredSize(new Dimension(getWidth(), nodeHeight * tree.getExpandedNodeCount()));
+			setPreferredSize(new Dimension(getWidth(), nodeHeight * root.getExpandedNodeCount()));
 
 			// fix this?
 			revalidate();
@@ -190,18 +190,18 @@ public class TreeComp extends JScrollPane {
 		// Start Rect/Circle stuff
 		private Circle getRemoveCircle(Node n) {
 			int x = getWidth() - 5 - circleRadius;
-			int y = (tree.getNodeNumber(n) + 1) * nodeHeight - nodeHeight / 2;
+			int y = (root.getNodeNumber(n) + 1) * nodeHeight - nodeHeight / 2;
 			return new Circle(x, y, circleRadius);
 		}
 
 		private Rect getExpandRect(Node n) {
 			return new Rect((n.getLevel() - 1) * levelSpacing + (levelSpacing) / 2 - boxSize / 2,
-					tree.getNodeNumber(n) * nodeHeight + nodeHeight / 2 - boxSize / 2, boxSize, boxSize);
+					root.getNodeNumber(n) * nodeHeight + nodeHeight / 2 - boxSize / 2, boxSize, boxSize);
 		}
 
 		private Rect getNodeRect(Node n) {
 			int x = n.getLevel() * levelSpacing;
-			return new Rect(x, tree.getNodeNumber(n) * nodeHeight, getWidth() - x - 1, nodeHeight);
+			return new Rect(x, root.getNodeNumber(n) * nodeHeight, getWidth() - x - 1, nodeHeight);
 		}
 		// End Rect/Cicle Stuff
 
@@ -387,7 +387,7 @@ public class TreeComp extends JScrollPane {
 				}
 
 				Node clickedNode;
-				if ((clickedNode = tree.getVisibleNode(e.getY() / nodeHeight)) == null) {
+				if ((clickedNode = root.getVisibleNode(e.getY() / nodeHeight)) == null) {
 					selectNode(null);
 
 					// If the clicked node is null, that means that no node was
@@ -454,7 +454,7 @@ public class TreeComp extends JScrollPane {
 			public void mousePressed(MouseEvent e) {
 
 				Node clickedNode;
-				if ((clickedNode = tree.getVisibleNode(e.getY() / nodeHeight)) == null) {
+				if ((clickedNode = root.getVisibleNode(e.getY() / nodeHeight)) == null) {
 					selectNode(null);
 					// If the clicked node is null, that means that no node was
 					// clicked on
@@ -471,7 +471,7 @@ public class TreeComp extends JScrollPane {
 
 					// Hit Remove circle:
 					if (nodeRemoval && getRemoveCircle(clickedNode).contains(e.getX(), e.getY()) && e.getButton() == 1) {
-						Tree.remove(clickedNode);
+						clickedNode.remove();
 						parentFrame.repaint();
 						return;
 					}
@@ -511,13 +511,13 @@ public class TreeComp extends JScrollPane {
 
 					// Select the previous node
 					case KeyEvent.VK_UP:
-						selectNode(tree.getVisibleNode(tree.getNodeNumber(selectedNode) - 1));
+						selectNode(root.getVisibleNode(root.getNodeNumber(selectedNode) - 1));
 
 						break;
 
 					// Select the next node
 					case KeyEvent.VK_DOWN:
-						selectNode(tree.getVisibleNode(tree.getNodeNumber(selectedNode) + 1));
+						selectNode(root.getVisibleNode(root.getNodeNumber(selectedNode) + 1));
 
 						break;
 
@@ -534,11 +534,11 @@ public class TreeComp extends JScrollPane {
 					// the bottom of the tree
 					switch (e.getKeyCode()) {
 					case KeyEvent.VK_UP:
-						selectNode(tree.getVisibleNode(tree.getExpandedNodeCount() - 1));
+						selectNode(root.getVisibleNode(root.getExpandedNodeCount() - 1));
 
 						break;
 					case KeyEvent.VK_DOWN:
-						selectNode(tree.getVisibleNode(0));
+						selectNode(root.getVisibleNode(0));
 
 						break;
 					}

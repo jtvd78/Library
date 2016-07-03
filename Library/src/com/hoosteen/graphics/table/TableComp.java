@@ -1,8 +1,8 @@
 package com.hoosteen.graphics.table;
 
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Cursor;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -26,6 +26,8 @@ public class TableComp<E extends TableData> extends JScrollPane{
 	
 	int selectedRow = -1;
 	
+	Color bgColor = Color.WHITE;
+	
 	InnerTableComp inner;
 	TableDataSource<E> source;
 	
@@ -43,6 +45,7 @@ public class TableComp<E extends TableData> extends JScrollPane{
 		}
 		
 		setViewportView(inner);
+		this.setBackground(bgColor);
 		getVerticalScrollBar().setUnitIncrement(rowHeight);
 	}
 	
@@ -56,34 +59,31 @@ public class TableComp<E extends TableData> extends JScrollPane{
 		
 		public void paintComponent(Graphics g){
 			
+			super.paintComponent(g);
+			
 			GraphicsWrapper gw = new GraphicsWrapper(g);
 			
-			g.setColor(Color.WHITE);
+			g.setColor(bgColor);
 			g.fillRect(0, 0, getWidth(), getHeight());
 			
 			data = source.getData();
 			
 			//You can't do anything if there's no data
-			if(data.length == 0){
+			if(data == null || data.length == 0){
 				return;
 			}		
 			
 			int col = 0;
 			int colWidthSum = 0;
 			String[] headers = data[0].getTableHeaders();
-			for(String header : headers){
-				
+			
+			for(String header : headers){	
 				
 				
 				for(int row = 0; row < data.length + 1; row ++){
 					
 					String str;
 					Rect r = new Rect(colWidthSum, rowHeight * row, colWidths[col], rowHeight);
-					
-					
-					
-					
-					
 					
 					
 					//header
@@ -103,7 +103,8 @@ public class TableComp<E extends TableData> extends JScrollPane{
 					}
 					
 					gw.setColor(Color.BLACK);
-					gw.drawCenteredString(str, r);			
+				//	gw.drawCenteredString(str, r);	
+					gw.drawCenteredString(str, r.offset(5, 0), GraphicsWrapper.HorizontalAlignment.LEFT, GraphicsWrapper.VerticalAlignment.MIDDLE);
 					gw.drawRect(r);
 				}
 				
@@ -118,9 +119,33 @@ public class TableComp<E extends TableData> extends JScrollPane{
 		 */
 		@Override
 		public int getWidth() {			
-			int w = this.getParent().getWidth();			
-			return w;
+			int widthSum = 0;
+			for(Integer i : colWidths){
+				widthSum += i;			
+			}
+			return widthSum+1;
 		}
+		
+		@Override
+		public int getHeight(){
+			
+			if(data == null){
+				return 0;
+			}
+			
+			return (data.length+1)*rowHeight+1;
+		}
+		
+		public void updatePreferredSize(){
+			System.out.println("Height " + getHeight());
+			setPreferredSize(new Dimension(getWidth(), getHeight()));
+		}
+	}
+	
+	public void dataChanged(){
+		data = source.getData();
+		inner.updatePreferredSize();
+		repaint();
 	}
 	
 	int mouseX = 0;
@@ -133,17 +158,21 @@ public class TableComp<E extends TableData> extends JScrollPane{
 		@Override
 		public void mouseClicked(MouseEvent e) {
 			
+			//The user clicked under the table, there are no rows there
 			int row = mouseY / rowHeight - 1;	
-			if(row > data.length || row < 0){
+			if(row > data.length - 1 || row < 0 || mouseX > inner.getWidth()){
 				selectedRow = -1;
 				repaint();
 				return;
 			}
 			
+			
+			
 			if(e.getButton() == 3){
 				for(TableActionListener l : listeners){
 					l.rowRightClicked(row, data[row]);
-				}
+				}	
+				dataChanged();
 			}
 			
 			
@@ -160,12 +189,12 @@ public class TableComp<E extends TableData> extends JScrollPane{
 				for(TableActionListener l : listeners){
 					l.rowDoubleClicked(row, data[row]);
 				}
+				dataChanged();
 			}
 		}
 
 		@Override
 		public void mouseEntered(MouseEvent arg0) {
-			// TODO Auto-generated method stub
 			
 		}
 
