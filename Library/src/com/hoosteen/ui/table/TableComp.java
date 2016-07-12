@@ -1,4 +1,4 @@
-package com.hoosteen.graphics.table;
+package com.hoosteen.ui.table;
 
 import java.awt.Color;
 import java.awt.Cursor;
@@ -66,7 +66,7 @@ public class TableComp<E extends TableData> extends JScrollPane{
 			g.setColor(bgColor);
 			g.fillRect(0, 0, getWidth(), getHeight());
 			
-			data = source.getData();
+	//		data = source.getData();
 			
 			//You can't do anything if there's no data
 			if(data == null || data.length == 0){
@@ -143,9 +143,14 @@ public class TableComp<E extends TableData> extends JScrollPane{
 	}
 	
 	public void dataChanged(){
+		
+		System.out.println("Data changed");
+		
 		data = source.getData();
+		
 		inner.updatePreferredSize();
 		repaint();
+		
 	}
 	
 	int mouseX = 0;
@@ -186,7 +191,7 @@ public class TableComp<E extends TableData> extends JScrollPane{
 				repaint();
 				
 			}else if(e.getClickCount() == 2){
-				for(TableActionListener l : listeners){
+				for(TableActionListener l : listeners){					
 					l.rowDoubleClicked(row, data[row]);
 				}
 				dataChanged();

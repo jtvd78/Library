@@ -27,6 +27,11 @@ import com.hoosteen.Tools;
  */
 public abstract class Node implements Serializable, Iterable<Node>, Comparable<Node>{
 		
+	
+	//The tree comp that is displaying this node. 
+	//The node where comp is not == to null is the root node of the tree
+	private TreeComp comp;
+	
 	private Node parent;	
 	private boolean hidden = true;
 	private boolean expanded = false;
@@ -216,6 +221,7 @@ public abstract class Node implements Serializable, Iterable<Node>, Comparable<N
 	public synchronized void addNode(Node n){		
 		n.setParent(this);
 		nodeList.add(n);
+		treeChanged();
 	}
 	
 	/**
@@ -233,7 +239,26 @@ public abstract class Node implements Serializable, Iterable<Node>, Comparable<N
 	 * @return Returns true for success, false for not. 
 	 */
 	public synchronized boolean removeNode(Node n){
-		return nodeList.remove(n);
+		boolean result = nodeList.remove(n);
+		treeChanged();
+		return result;
+	}
+	
+	//This method should be called whenever the structure of the Tree is changed. 
+	//Or something like that. Sometimes it doesnt need to be called since the Tree Comp
+	//will automatically repaint when there is user input
+	protected void treeChanged(){		
+		if(comp == null){
+			if(parent != null){
+				parent.treeChanged();
+			}			
+		}else{			
+			comp.repaint();
+		}
+	}
+	
+	public void setTreeComp(TreeComp comp){
+		this.comp = comp;
 	}
 	
 	/** 

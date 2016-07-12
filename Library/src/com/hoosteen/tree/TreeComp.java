@@ -85,6 +85,8 @@ public class TreeComp extends JScrollPane {
 		this.root = root;
 		this.parentFrame = parentFrame;
 		this.inner = new InnerTreeComp();
+		
+		root.setTreeComp(this);
 
 		// Add InnerTreeComp to the ScrollPane
 		setViewportView(inner);
@@ -256,17 +258,14 @@ public class TreeComp extends JScrollPane {
 				drawString(node.toString(), nodeRect);
 
 				// X and Y starting positions for the lines being drawn
-				int lineX = ogNodeRect.getX() - levelSpacing / 2;
+				int lineX = ogNodeRect.getX() - levelSpacing / 2 - 1;
 				int lineY = ogNodeRect.getY() + nodeHeight / 2;
 
 				// Horizontal line to the left of the node
 				g.setColor(fgColor);
 				drawLine(lineX - levelSpacing, lineY, lineX, lineY);
 
-				// Draw Expand box if node has children.
-				if (node.size() != 0) {
-					drawExpandBox(node);
-				}
+
 
 				if (node.isExpanded() && drawChildren) {
 
@@ -290,12 +289,18 @@ public class TreeComp extends JScrollPane {
 
 					// Draw the line
 					setColor(fgColor);
-					drawLine(lineX, lineY + boxSize / 2, lineX, lineY + lineHeight);
+				//	drawLine(lineX, lineY + boxSize / 2, lineX, lineY + lineHeight);
+					drawLine(lineX, lineY, lineX, lineY + lineHeight);
 
 					// Draw child nodes
 					for (Node child : node) {
 						drawNode(child, drawChildren);
 					}
+				}
+				
+				// Draw Expand box if node has children.
+				if (node.size() != 0) {
+					drawExpandBox(node);
 				}
 
 				// Don't draw X if you're dragging the node

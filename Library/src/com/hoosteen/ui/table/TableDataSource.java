@@ -1,4 +1,4 @@
-package com.hoosteen.graphics.table;
+package com.hoosteen.ui.table;
 
 import java.util.List;
 
