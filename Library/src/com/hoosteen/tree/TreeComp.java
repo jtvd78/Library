@@ -599,7 +599,7 @@ public class TreeComp extends JScrollPane {
 	 * @param Node
 	 *            clicked on
 	 */
-	private void nodeLeftClicked(Node n) {
+	public void nodeLeftClicked(Node n) {
 		selectNode(n);
 		
 		for (NodeEventListener listener : nodeListenerList) {
