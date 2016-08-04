@@ -104,7 +104,7 @@ public class TableComp<E extends TableData> extends JScrollPane{
 					
 					gw.setColor(Color.BLACK);
 				//	gw.drawCenteredString(str, r);	
-					gw.drawCenteredString(str, r.offset(5, 0), GraphicsWrapper.HorizontalAlignment.LEFT, GraphicsWrapper.VerticalAlignment.MIDDLE);
+					gw.drawCenteredString(str, r.offset(5, 0), GraphicsWrapper.HorizAlign.LEFT, GraphicsWrapper.VertAlign.MIDDLE);
 					gw.drawRect(r);
 				}
 				

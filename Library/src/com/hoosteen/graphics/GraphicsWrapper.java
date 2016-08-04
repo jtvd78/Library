@@ -3,7 +3,10 @@ package com.hoosteen.graphics;
 import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.geom.Rectangle2D;
+
+import com.hoosteen.graphics.GraphicsWrapper.Position;
 
 
 /**
@@ -17,8 +20,7 @@ public class GraphicsWrapper {
 	 * Graphics object on which to draw on
 	 */
 	protected Graphics g;
-	private FontMetrics fm;
-	
+	private FontMetrics fm;	
 	
 	/**
 	 * Creates a new Graphics Wrapper, with a graphics object g
@@ -40,15 +42,19 @@ public class GraphicsWrapper {
 		g.drawString(s, r.getX() + 5, y);
 	}
 	
-	public enum HorizontalAlignment{
+	public enum HorizAlign{
 		LEFT, CENTER, RIGHT
 	}
 	
-	public enum VerticalAlignment{
+	public enum VertAlign{
 		TOP, MIDDLE, BOTTOM
 	}
 	
-	public void drawCenteredString(String s, Rect r, HorizontalAlignment hori, VerticalAlignment vert ){
+	public enum Position{
+		TOP, TOP_RIGHT, RIGHT, BOTTOM_RIGHT, BOTTOM, BOTTOM_LEFT, LEFT, TOP_LEFT, CENTER
+	}
+	
+	public void drawCenteredString(String s, Rect r, HorizAlign hori, VertAlign vert ){
 		
 		Rectangle2D bounds = fm.getStringBounds(s, g);
 		
@@ -126,29 +132,6 @@ public class GraphicsWrapper {
 		}
 	}
 	
-
-	
-	/**
-	 * Sets the color to draw
-	 * @param c - Color to draw
-	 */
-	public void setColor(Color c){
-		g.setColor(c);
-	}
-	
-	
-	/**
-	 * Draws a line between the input points
-	 * Wrapper for drawLine method in graphics
-	 * @param x1 - X Coordinate of first point
-	 * @param y1 - Y Coordinate of first point
-	 * @param x2 - X Coordinate of second point
-	 * @param y2 - Y Coordinate of second point
-	 */
-	public void drawLine(int x1, int y1, int x2, int y2){
-		g.drawLine(x1, y1, x2, y2);
-	}
-	
 	public void fillRect(Rect r, Color c){
 		g.setColor(c);
 		r.fill(g);
@@ -197,13 +180,106 @@ public class GraphicsWrapper {
 		r.draw(g, weight);
 	}
 	
+	/**
+	 * Gets the Rect for a given string with the (x, y) values set to (0,0)
+	 * 
+	 * @param s The string to get the rect of
+	 * @return The String's rect
+	 */
 	public Rect getStringRect(String s){
 		Rectangle2D bounds = fm.getStringBounds(s, g);
 		
 		return new Rect(0,0,(int)bounds.getWidth(), fm.getAscent() + fm.getDescent());
 	}
 	
+	/**
+	 * Gets the Rect for a given string with the Rect positioned to the
+	 * right of the x Value and centered around the Y value
+	 * 
+	 * @param s The string to get the rect of
+	 * @return The String's rect
+	 */	
+	public Rect getStringRect(String s, int x, int y, Position pos){
+		Rectangle2D bounds = fm.getStringBounds(s, g);
+		
+		int width = (int) bounds.getWidth();
+		int height = (int) bounds.getHeight();		
+		
+		switch(pos){
+		case BOTTOM: 		return new Rect(x-width/2,y,width,height);
+		case BOTTOM_LEFT: 	return new Rect(x-width,y,width,height);
+		case BOTTOM_RIGHT:	return new Rect(x,y,width,height);
+		case CENTER: 		return new Rect(x-width/2, y-height/2,width,height);
+		case LEFT: 			return new Rect(x-width,y-height/2,width,height);
+		case RIGHT: 		return new Rect(x, y-height/2,width,height);
+		case TOP: 			return new Rect(x-width/2,y-height, width,height);
+		case TOP_LEFT: 		return new Rect(x-width, y-height,width,height);
+		case TOP_RIGHT: 	return new Rect(x,y-height,width,height);		
+		default: 			return new Rect(x,y,width,height);
+		}	
+		
+//		return new Rect(x,y-(int)bounds.getHeight()/2,(int)bounds.getWidth(), (int)bounds.getHeight());
+	}
+	
 	public void drawCenteredString(String s, double x, double y) {
 		drawCenteredString(s, (int)x, (int)y);
+	}
+
+	public void drawString(String string, int x, int y, Position position) {
+		Rect r = getStringRect(string, x, y, position);
+		drawCenteredString(string, r, HorizAlign.CENTER, VertAlign.MIDDLE);
+	}
+
+	/**
+	 * Sets the color to draw
+	 * @param c - Color to draw
+	 */
+	public void setColor(Color c){
+		g.setColor(c);
+	}
+	
+	
+	/**
+	 * Draws a line between the input points
+	 * Wrapper for drawLine method in graphics
+	 * @param x1 - X Coordinate of first point
+	 * @param y1 - Y Coordinate of first point
+	 * @param x2 - X Coordinate of second point
+	 * @param y2 - Y Coordinate of second point
+	 */
+	public void drawLine(int x1, int y1, int x2, int y2){
+		g.drawLine(x1, y1, x2, y2);
+	}
+	
+	public void fillRoundRect(int x, int y, int width, int height, int arcWidth, int arcHeight) {
+		g.fillRoundRect(x, y, width, height, arcWidth, arcHeight);
+	}
+	
+	public void fillOval(int x, int y, int width, int height) {
+		g.fillOval(x, y, width, height);		
+	}
+
+	public void drawOval(int x, int y, int width, int height) {
+		g.drawOval(x, y, width, height);		
+	}
+
+	public void drawPolyline(int[] xPoints, int[] yPoints, int length) {
+		g.drawPolygon(xPoints, yPoints, length);
+	}
+
+	public void fillPolygon(int[] xPointsArr, int[] yPointsArr, int size) {
+		g.fillPolygon(xPointsArr, yPointsArr, size);
+	}
+
+	public Graphics getGraphics() {
+		return g;
+	}
+
+	public void fillRect(int x, int y, int width, int height) {
+		g.fillRect(x, y, width, height);
+	}
+
+	public void fillRoundRect(Rect r, int radius) {
+		g.fillRoundRect(r.getX(), r.getY(), r.getWidth(), r.getHeight(), radius, radius);
 	}
 }
