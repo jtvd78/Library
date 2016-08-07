@@ -264,7 +264,7 @@ public class GraphicsWrapper {
 	}
 
 	public void drawPolyline(int[] xPoints, int[] yPoints, int length) {
-		g.drawPolygon(xPoints, yPoints, length);
+		g.drawPolyline(xPoints, yPoints, length);
 	}
 
 	public void fillPolygon(int[] xPointsArr, int[] yPointsArr, int size) {
