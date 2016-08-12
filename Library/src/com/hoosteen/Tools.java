@@ -7,6 +7,8 @@ import java.util.Random;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 
 /**
  * Some random stuff that I use. 
@@ -56,5 +58,22 @@ public class Tools  {
         JScrollPane jsp = new JScrollPane(jta);
         jsp.setPreferredSize(new Dimension(480, 320));
         JOptionPane.showMessageDialog( null, jsp, title, JOptionPane.DEFAULT_OPTION);	
+	}
+
+	/**
+	 * Makes the window look nice
+	 */
+	public static void setNativeUI(){
+		try {
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (InstantiationException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		} catch (UnsupportedLookAndFeelException e) {
+			e.printStackTrace();
+		}
 	}
 }
