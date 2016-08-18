@@ -238,7 +238,7 @@ public class TreeComp extends JScrollPane {
 				}
 
 				// Sets color to draw node. if node is hidden, draw white
-				setColor(node.getColor());
+				setColor(node.getDisplayColor());
 				if (node.isHidden()) {
 					setColor(nodeBgColor);
 				}

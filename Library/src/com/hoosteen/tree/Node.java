@@ -210,7 +210,7 @@ public abstract class Node implements Serializable, Iterable<Node>, Comparable<N
 	/**
 	 * @return Returns color of Node. Defaults to WHITE. 
 	 */
-	public Color getColor(){
+	public Color getDisplayColor(){
 		return Color.WHITE;
 	}
 	
@@ -300,11 +300,18 @@ public abstract class Node implements Serializable, Iterable<Node>, Comparable<N
 	
 	ArrayList<JMenuItem> menuItems = new ArrayList<JMenuItem>();
 	
+
+	
 	public void addRightClickOption(JMenuItem item){
 		menuItems.add(item);
 	}
+	
+	public void addRightClickOption(AbstractAction action) {
+		menuItems.add(new JMenuItem(action));
+	}
 
-	public void addPopupMenuOptions(JPopupMenu popupMenu){
+	public final void addPopupMenuOptions(JPopupMenu popupMenu){
+		
 		popupMenu.add(new AbstractAction("Remove"){
 			public void actionPerformed(ActionEvent e) {
 				Node.this.remove();
@@ -394,5 +401,13 @@ public abstract class Node implements Serializable, Iterable<Node>, Comparable<N
 		if(removeNode.getParent().size() == 0){
 			removeNode.getParent().remove();
 		}
+	}
+	
+	/**
+	 * Removes all Nodes in the Node
+	 */
+	public void clear(){
+		nodeList.clear();
+		treeChanged();
 	}
 }
