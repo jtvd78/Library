@@ -25,50 +25,76 @@ import com.hoosteen.graphics.Rect;
 
 public class TreeComp extends JScrollPane {
 
-	// Root node
+	/**
+	 *  Root node
+	 */
 	Node root;
 
-	// The frame that is the eventual parent of this node
+	/**
+	 * The parent frame to this Component
+	 */
 	JFrame parentFrame;
 
-	// The "actual" tree comp which is within the JScrollPane
+	/**
+	 *  The "actual" TreeComp which is within the JScrollPane
+	 */
 	InnerTreeComp inner;
+
+	/**
+	 * Node currently selected. If there is no node which is currently selected,
+	 * this should be null
+	 */	 
+	Node selectedNode = null;
+
+	/**
+	 *  Node currently being dragged. If there is no node being dragged
+	 *  currently, this should be null
+	 */
+	Node draggingNode = null;
+	
+	/**
+	 * The remove X's will only appear/work if this is true
+	 */
+	boolean nodeRemoval = true;
+
+	/**
+	 *  The popupMenu being used by any treeComp
+	 */
+	static JPopupMenu popupMenu = new JPopupMenu();
 	
 	// These variables are used whenever a node is being dragged.
 	int draggingOffsetX = 0;
 	int draggingOffsetY = 0;
 
-	// Node currently selected. If there is no node which is currently selected,
-	// this should be null
-	Node selectedNode = null;
-
-	// Node currently being dragged. If there is no node being dragged
-	// currently, this should be null
-	Node draggingNode = null;
-	
-	//The remove X's will only appear/work if this is true
-	boolean nodeRemoval = true;
-
-	// The popupMenu being used by any treeComp
-	static JPopupMenu popupMenu = new JPopupMenu();
-
-	// List of Strings used for the right click menu
+	/**
+	 *  List of Strings used for the right click menu
+	 */
 	ArrayList<String> rightClickMenuStrings = new ArrayList<String>();
 
-	// List of NodeEventListeners to notify when a Node is clicked on
+	/**
+	 *  List of NodeEventListeners to notify when a Node is clicked on
+	 */
 	ArrayList<NodeEventListener> nodeListenerList = new ArrayList<NodeEventListener>();
 
 	// SETTINGS//
-	// The radius of the close circles on each node
+	/**
+	 *  The radius of the close circles on each node
+	 */
 	public static final int circleRadius = 6;
 
-	// With and height of the expand boxes
+	/**
+	 *  With and height of the expand boxes
+	 */
 	public static final int boxSize = 9;
 
-	// Height of each node
+	/**
+	 *  Height of each node
+	 */
 	public static final int nodeHeight = 20;
 
-	// X-Spacing between each level of a tree
+	/**
+	 *  X-Spacing between each level of a tree
+	 */
 	public static final int levelSpacing = 15;
 
 	// Start Color Settings
@@ -76,16 +102,21 @@ public class TreeComp extends JScrollPane {
 	private final Color bgColor = Color.WHITE;
 	private final Color textColor = Color.BLACK;
 	private final Color nodeBgColor = Color.WHITE;
-	private final Color removeXColor = Color.BLACK;
 	private final Color nodeOutlineColor = Color.GRAY;
 	private final Color selectedNodeColor = new Color(200, 200, 255, 150);
 
+	/**
+	 * Creates a TreeComp, which displays a Node. The root node is not shown
+	 * @param parentFrame The owning JFrame
+	 * @param root The root node to display
+	 */
 	public TreeComp(JFrame parentFrame, Node root) {
 
 		this.root = root;
 		this.parentFrame = parentFrame;
 		this.inner = new InnerTreeComp();
 		
+		//Set the root's tree comp so it can notify the tree comp when a change is made
 		root.setTreeComp(this);
 
 		// Add InnerTreeComp to the ScrollPane
@@ -106,8 +137,8 @@ public class TreeComp extends JScrollPane {
 	private void disableArrowKeys() {
 		String[] keystrokeNames = { "UP", "DOWN", "LEFT", "RIGHT" };
 		for (int i = 0; i < keystrokeNames.length; ++i) {
-			getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(keystrokeNames[i]),
-					"none");
+			KeyStroke keystroke = KeyStroke.getKeyStroke(keystrokeNames[i]);
+			getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(keystroke, "none");
 		}
 	}
 
@@ -131,20 +162,26 @@ public class TreeComp extends JScrollPane {
 		nodeListenerList.add(listener);
 	}
 
+	/**
+	 * Draws the actual Tree. This is an inner class since the outer class must be a JScrollPane
+	 * @author Justin
+	 *
+	 */
 	public class InnerTreeComp extends JPanel {
 
+		/**
+		 * Creates an InnterTreeComp
+		 */
 		public InnerTreeComp() {
 			// Allows keyboard input
 			setFocusable(true);
 
-			// Configures input
+			// Configure input
 			Listener l = new Listener();
 			addMouseListener(l);
 			addMouseMotionListener(l);
 			addKeyListener(l);
-		}
-
-		
+		}	
 
 		/**
 		 * Draws the tree to the Graphics object g
@@ -185,30 +222,52 @@ public class TreeComp extends JScrollPane {
 		private void updateScrollPaneDimensions() {
 			setPreferredSize(new Dimension(getWidth(), nodeHeight * root.getExpandedNodeCount()));
 
-			// fix this?
+			//Reset size to preferred size
 			revalidate();
 		}
 		
-		// Start Rect/Circle stuff
+		/**
+		 * Gets a Cirle where the area where a user can press to remove a node
+		 * @param n Node to get the remove Circle of
+		 * @return The Remove Circle
+		 */
 		private Circle getRemoveCircle(Node n) {
 			int x = getWidth() - 5 - circleRadius;
-			int y = (root.getNodeNumber(n) + 1) * nodeHeight - nodeHeight / 2;
+			int y = (n.getNodeNumber() + 1) * nodeHeight - nodeHeight / 2;
 			return new Circle(x, y, circleRadius);
 		}
 
+		/**
+		 * Gets the expand Rect location for a Node
+		 * @param n Node to get Expand Rect of
+		 * @return The Expand Rect
+		 */
 		private Rect getExpandRect(Node n) {
 			return new Rect((n.getLevel() - 1) * levelSpacing + (levelSpacing) / 2 - boxSize / 2,
-					root.getNodeNumber(n) * nodeHeight + nodeHeight / 2 - boxSize / 2, boxSize, boxSize);
+					n.getNodeNumber() * nodeHeight + nodeHeight / 2 - boxSize / 2, boxSize, boxSize);
 		}
 
+		/**
+		 * Gets a Rect of the space that a Node takes up
+		 * @param n Node to get the bounding Rect of
+		 * @return The node's bounding Rect
+		 */
 		private Rect getNodeRect(Node n) {
 			int x = n.getLevel() * levelSpacing;
-			return new Rect(x, root.getNodeNumber(n) * nodeHeight, getWidth() - x - 1, nodeHeight);
+			return new Rect(x, n.getNodeNumber() * nodeHeight, getWidth() - x - 1, nodeHeight);
 		}
-		// End Rect/Cicle Stuff
 
+		/**
+		 * Extends GraphicsWrapper and implements functionality to draw nodes
+		 * @author Justin
+		 *
+		 */
 		class TreeGraphics extends GraphicsWrapper {
 
+			/**
+			 * Creates a TreeGraphics object with a Graphics object
+			 * @param g
+			 */
 			public TreeGraphics(Graphics g) {
 				super(g);
 			}
@@ -229,7 +288,7 @@ public class TreeComp extends JScrollPane {
 
 				// Node Rect which is offset by the dragging offset if
 				// The node is being dragged
-				Rect nodeRect = getNodeRect(node);
+				Rect nodeRect = ogNodeRect;
 
 				// If the current node being drawn is the node being dragged,
 				// adjust the node's rect to the offset position.
@@ -237,21 +296,12 @@ public class TreeComp extends JScrollPane {
 					nodeRect = nodeRect.offset(draggingOffsetX, draggingOffsetY);
 				}
 
-				// Sets color to draw node. if node is hidden, draw white
+				// Sets color to draw node. if node is hidden, draw background color
 				setColor(node.getDisplayColor());
 				if (node.isHidden()) {
 					setColor(nodeBgColor);
 				}
-				fillRect(nodeRect);
-
-				// Highlight selected node
-				if (node.equals(selectedNode)) {
-					setColor(selectedNodeColor);
-					fillRect(nodeRect);
-
-					setColor(fgColor);
-					drawRect(nodeRect, 3);
-				}
+				fillRect(nodeRect);				
 
 				// Draw node text
 				setColor(textColor);
@@ -265,8 +315,7 @@ public class TreeComp extends JScrollPane {
 				g.setColor(fgColor);
 				drawLine(lineX - levelSpacing, lineY, lineX, lineY);
 
-
-
+				//Draw child nodes if the node is expanded, and if children should be drawn
 				if (node.isExpanded() && drawChildren) {
 
 					// Vertical line under expand box
@@ -288,8 +337,6 @@ public class TreeComp extends JScrollPane {
 					int lineHeight = (node.getExpandedNodeCount() - lastNodeRemove) * nodeHeight;
 
 					// Draw the line
-					setColor(fgColor);
-				//	drawLine(lineX, lineY + boxSize / 2, lineX, lineY + lineHeight);
 					drawLine(lineX, lineY, lineX, lineY + lineHeight);
 
 					// Draw child nodes
@@ -305,37 +352,56 @@ public class TreeComp extends JScrollPane {
 
 				// Don't draw X if you're dragging the node
 				if (nodeRemoval && node != draggingNode) {
-
-					// Draws X
-					setColor(removeXColor);
+					
 					int x = nodeRect.getX() + nodeRect.getWidth();
-					int weight = 2;
-
+					int y = nodeRect.getY();
 					
+					//Weight of the X
+					int weight = 3;		
 					
-					
+					//One fourth and three fourths into a node's rect
 					int oneFourth = nodeHeight / 4;
 					int threeFourths = 3 * nodeHeight / 4;
-					int y = nodeRect.getY();
-
+					
+					//Some reused expressions
 					int x1 = x - threeFourths;
 					int x2 = x - oneFourth;
-
-					fillRect(x - nodeHeight, y, nodeHeight, nodeHeight , bgColor);
+					
+					int y1 = y + oneFourth;
+					int y2 = y + threeFourths;					
+					
+					// Sets color of box to draw behind x to cover text
+					setColor(node.getDisplayColor());
+					if (node.isHidden()) {
+						setColor(nodeBgColor);
+					}
+					
+					// Draw the box
+					fillRect(x - nodeHeight, y, nodeHeight, nodeHeight);					
+					
+					//Set removeX color
 					setColor(fgColor);
 					
+					//Draw removeX with weight
 					for (int i = 0; i < weight; i++) {
 
 						// Backslash
-						g.drawLine(x1 + i, y + oneFourth, x2, y + threeFourths - i);
-						g.drawLine(x1, y + oneFourth + i, x2 - i, y + threeFourths);
+						g.drawLine(x1 + i, y1, x2, y2 - i);
+						g.drawLine(x1, y1 + i, x2 - i, y2);
 
 						// Forward-Slash
-
-						g.drawLine(x1, y + threeFourths - i, x2 - i, y + oneFourth);
-						g.drawLine(x1 + i, y + threeFourths, x2, y + oneFourth + i);
-
+						g.drawLine(x1, y2 - i, x2 - i, y1);
+						g.drawLine(x1 + i, y2, x2, y1 + i);
 					}
+				}
+				
+				// Highlight selected node
+				if (node.equals(selectedNode)) {
+					setColor(selectedNodeColor);
+					fillRect(nodeRect);
+
+					setColor(fgColor);
+					drawRect(nodeRect, 3);
 				}
 				
 				// Node border
@@ -461,6 +527,7 @@ public class TreeComp extends JScrollPane {
 				Node clickedNode;
 				if ((clickedNode = root.getVisibleNode(e.getY() / nodeHeight)) == null) {
 					selectNode(null);
+					
 					// If the clicked node is null, that means that no node was
 					// clicked on
 					return;
@@ -481,7 +548,7 @@ public class TreeComp extends JScrollPane {
 						return;
 					}
 
-					// Left or right cick
+					// Left, middle, or right cick
 					switch (button) {
 					case 1:
 						nodeLeftClicked(clickedNode);
@@ -516,13 +583,13 @@ public class TreeComp extends JScrollPane {
 
 					// Select the previous node
 					case KeyEvent.VK_UP:
-						selectNode(root.getVisibleNode(root.getNodeNumber(selectedNode) - 1));
+						selectNode(root.getVisibleNode(selectedNode.getNodeNumber() - 1));
 
 						break;
 
 					// Select the next node
 					case KeyEvent.VK_DOWN:
-						selectNode(root.getVisibleNode(root.getNodeNumber(selectedNode) + 1));
+						selectNode(root.getVisibleNode(selectedNode.getNodeNumber() + 1));
 
 						break;
 
@@ -547,7 +614,6 @@ public class TreeComp extends JScrollPane {
 
 						break;
 					}
-
 				}
 
 				parentFrame.repaint();
@@ -575,6 +641,20 @@ public class TreeComp extends JScrollPane {
 
 			// Unused methods
 			public void mouseClicked(MouseEvent e) {
+				
+				Node clickedNode;
+				if ((clickedNode = root.getVisibleNode(e.getY() / nodeHeight)) == null) {
+					selectNode(null);
+					
+					// If the clicked node is null, that means that no node was
+					// clicked on
+					return;
+				}
+				
+				if(e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)){
+					nodeDoubleClicked(clickedNode);
+				}
+				
 			}
 
 			public void mouseEntered(MouseEvent arg0) {
@@ -592,6 +672,8 @@ public class TreeComp extends JScrollPane {
 		}
 
 	}
+	
+	//TODO should not be public
 
 	/**
 	 * Called when a node is left clicked
@@ -599,11 +681,18 @@ public class TreeComp extends JScrollPane {
 	 * @param Node
 	 *            clicked on
 	 */
-	public void nodeLeftClicked(Node n) {
-		selectNode(n);
+	private void nodeLeftClicked(Node n) {
 		
-		for (NodeEventListener listener : nodeListenerList) {
-			listener.nodeLeftClicked(new NodeEvent(n));
+		if(n == selectedNode){
+			selectNode(null);
+		}else{
+			selectNode(n);
+		}		
+	}
+	
+	private void nodeDoubleClicked(Node n){
+		for(NodeEventListener listener : nodeListenerList){
+			listener.nodeDoubleClicked(new NodeEvent(n));
 		}
 	}
 
@@ -619,7 +708,7 @@ public class TreeComp extends JScrollPane {
 	 */
 	private void nodeRightClicked(final Node n, int x, int y) {
 		selectNode(n);
-		popupMenu.removeAll();
+		popupMenu.removeAll();	
 
 		for (String text : rightClickMenuStrings) {
 			popupMenu.add(new AbstractAction(text) {
@@ -631,10 +720,19 @@ public class TreeComp extends JScrollPane {
 			});
 		}
 
-		n.addPopupMenuOptions(popupMenu);
-
+		n.addPopupMenuOptions(popupMenu, nodeListenerList);
+		
+		if(nodeRemoval){
+			popupMenu.add(new AbstractAction("Remove"){
+				public void actionPerformed(ActionEvent e) {
+					n.remove();
+				}	
+			});
+		}
+		
 		popupMenu.show(inner, x, y);
-		repaint();
+		
+		repaint();	
 	}
 
 	/**
@@ -642,15 +740,15 @@ public class TreeComp extends JScrollPane {
 	 * 
 	 * @param n
 	 */
-	private void selectNode(Node n) {
-
-		// Deselect current node if you clicked on the selected node
-		if (selectedNode == n) {
-			selectedNode = null;
-
-			// Set new node
-		} else {
-			selectedNode = n;
+	public void selectNode(Node n) {
+		selectedNode = n;
+		
+		if(n == null){
+			return;
+		}
+		
+		for (NodeEventListener listener : nodeListenerList) {
+			listener.nodeLeftClicked(new NodeEvent(n));
 		}
 	}
 

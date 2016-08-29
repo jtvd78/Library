@@ -32,7 +32,7 @@ public class Circle {
 	 * @return whether or not the circle contains the point
 	 */
 	public boolean contains(int x, int y){
-		if(Math.pow((this.x - x), 2) + Math.pow((this.y -y),2) > Math.pow(radius,2)){
+		if(Math.pow((this.x - x), 2) + Math.pow((this.y - y),2) > Math.pow(radius,2)){
 			return false;
 		}
 		return true;
@@ -60,10 +60,18 @@ public class Circle {
 	}
 
 	/**
+	 * Fills the circle
+	 * @param g - Graphics object to draw on
+	 */
+	public void fill(Graphics g) {
+		g.fillOval(x - radius, y - radius,radius*2, radius*2);
+	}
+	
+	/**
 	 * Draws the circle
 	 * @param g - Graphics object to draw on
 	 */
 	public void draw(Graphics g) {
-		g.fillOval(x - radius, y - radius,radius*2, radius*2);
+		g.drawOval(x - radius, y - radius,radius*2, radius*2);
 	}
 }

@@ -1,5 +1,6 @@
 package com.hoosteen.graphics;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
@@ -159,12 +160,21 @@ public class GraphicsWrapper {
 	}
 	
 	/**
-	 * Draws a circle
+	 * Fill a circle
+	 * @param c - Circle to draw
+	 */
+	public void fillCircle(Circle c){
+		c.fill(g);		
+	}
+	
+	/**
+	 * Draw a circle
 	 * @param c - Circle to draw
 	 */
 	public void drawCircle(Circle c){
 		c.draw(g);		
-	}
+	}	
+
 	
 	public void fillRect(int x, int y, int width, int height, Color c){
 		g.setColor(c);
@@ -281,5 +291,12 @@ public class GraphicsWrapper {
 
 	public void fillRoundRect(Rect r, int radius) {
 		g.fillRoundRect(r.getX(), r.getY(), r.getWidth(), r.getHeight(), radius, radius);
+	}
+
+	public void setLineWeight(int i) {
+		Graphics2D g2 = (Graphics2D)g;
+		
+		//3 Point (thickness) line
+		g2.setStroke(new BasicStroke(i));
 	}
 }

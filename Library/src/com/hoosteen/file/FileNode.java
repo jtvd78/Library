@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
+import com.hoosteen.Tools;
 import com.hoosteen.tree.Node;
 
 public class FileNode extends Node{
@@ -73,8 +74,20 @@ public class FileNode extends Node{
 			return;
 		}
 		
-		for(File f : file.listFiles()){			
-			addNode(new FileNode(f));
+		for(File f : file.listFiles()){
+			
+			if(f.isDirectory()){
+				addNode(new FileNode(f));
+			}else{
+				String name = f.getName();				
+				String fileType = name.substring(name.indexOf(".") + 1, name.length());
+				
+				if(fileType.equals("wav") || fileType.equals("mp3") && !f.isDirectory()){
+					addNode(new SoundFileNode(f));
+				}else{
+					addNode(new FileNode(f));
+				}
+			}		
 		}
 		
 		childrenLoaded = true;
@@ -94,5 +107,7 @@ class SoundFileNode extends FileNode{
 
 	public SoundFileNode(File file) {
 		super(file);
+		
+		this.addRightClickOption("Load Sound");
 	}
 }

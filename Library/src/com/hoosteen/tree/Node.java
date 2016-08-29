@@ -6,6 +6,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Queue;
 
@@ -298,9 +299,12 @@ public abstract class Node implements Serializable, Iterable<Node>, Comparable<N
 		return toString().compareTo(o.toString());
 	}
 	
+	ArrayList<String> stringMenuItems = new ArrayList<String>();
 	ArrayList<JMenuItem> menuItems = new ArrayList<JMenuItem>();
 	
-
+	public void addRightClickOption(String text){
+		stringMenuItems.add(text);
+	}
 	
 	public void addRightClickOption(JMenuItem item){
 		menuItems.add(item);
@@ -310,16 +314,20 @@ public abstract class Node implements Serializable, Iterable<Node>, Comparable<N
 		menuItems.add(new JMenuItem(action));
 	}
 
-	public final void addPopupMenuOptions(JPopupMenu popupMenu){
-		
-		popupMenu.add(new AbstractAction("Remove"){
-			public void actionPerformed(ActionEvent e) {
-				Node.this.remove();
-			}	
-		});
+	public final void addPopupMenuOptions(JPopupMenu popupMenu, List<NodeEventListener> listeners){	
 		
 		for(JMenuItem item : menuItems){
 			popupMenu.add(item);
+		}
+		
+		for(String text : stringMenuItems){
+			popupMenu.add(new AbstractAction(text) {
+				public void actionPerformed(ActionEvent e) {
+					for (NodeEventListener listener : listeners) {
+						listener.nodeRightClicked(text, new NodeEvent(Node.this));
+					}
+				}
+			});
 		}
 	}
 
@@ -331,7 +339,9 @@ public abstract class Node implements Serializable, Iterable<Node>, Comparable<N
 	 * @return Returns the index of the node, relative to the first node.
 	 *  Essentially, it is the number of nodes from the top that this node is
 	 */
-	public static int getNodeNumber(Node node){ 
+	public  int getNodeNumber(){ 
+		
+		Node node = this;
 		
 		//This just means that the top node (which should not be visible),
 		//has a visible node number of -1
@@ -340,13 +350,13 @@ public abstract class Node implements Serializable, Iterable<Node>, Comparable<N
 			return -1;
 		}
 		
-		int out = 0;
+		int nodesBefore = 0;
 		
 		int index = node.getParent().getIndex(node);
 		for(int i = 0; i < index; i++){
-			out += node.getParent().getNode(i).getExpandedNodeCount();
+			nodesBefore += node.getParent().getNode(i).getExpandedNodeCount();
 		}		
-		return node.getParent().getIndex(node)+out+getNodeNumber(node.getParent())+1;
+		return index+nodesBefore+node.getParent().getNodeNumber()+1;
 	}
 	
 	//Public method for get visible node
