@@ -170,7 +170,7 @@ public class TreeComp extends JScrollPane {
 	public class InnerTreeComp extends JPanel {
 
 		/**
-		 * Creates an InnterTreeComp
+		 * Creates an InnerTreeComp
 		 */
 		public InnerTreeComp() {
 			// Allows keyboard input
@@ -297,11 +297,8 @@ public class TreeComp extends JScrollPane {
 				}
 
 				// Sets color to draw node. if node is hidden, draw background color
-				setColor(node.getDisplayColor());
-				if (node.isHidden()) {
-					setColor(nodeBgColor);
-				}
-				fillRect(nodeRect);				
+				Color currentNodeBgColor = node.isHidden() ? nodeBgColor : node.getDisplayColor();
+				fillRect(nodeRect, currentNodeBgColor);				
 
 				// Draw node text
 				setColor(textColor);
@@ -370,14 +367,9 @@ public class TreeComp extends JScrollPane {
 					int y1 = y + oneFourth;
 					int y2 = y + threeFourths;					
 					
-					// Sets color of box to draw behind x to cover text
-					setColor(node.getDisplayColor());
-					if (node.isHidden()) {
-						setColor(nodeBgColor);
-					}
 					
-					// Draw the box
-					fillRect(x - nodeHeight, y, nodeHeight, nodeHeight);					
+					// Draw box behind x to hide text
+					fillRect(x - nodeHeight, y, nodeHeight, nodeHeight, currentNodeBgColor);					
 					
 					//Set removeX color
 					setColor(fgColor);
@@ -400,6 +392,7 @@ public class TreeComp extends JScrollPane {
 					setColor(selectedNodeColor);
 					fillRect(nodeRect);
 
+					//Thick border around selected node
 					setColor(fgColor);
 					drawRect(nodeRect, 3);
 				}
@@ -439,7 +432,7 @@ public class TreeComp extends JScrollPane {
 		/**
 		 * Handles all user input within this component
 		 * 
-		 * @author justin
+		 * @author Justin
 		 */
 		private class Listener implements MouseListener, MouseMotionListener, KeyListener {
 
@@ -448,7 +441,7 @@ public class TreeComp extends JScrollPane {
 			int py = 0;
 
 			/**
-			 * Called when the mouse is dragged within this component Used to
+			 * Called when the mouse is dragged within this component. Used to
 			 * drag a node up and down within the tree.
 			 */
 			public void mouseDragged(MouseEvent e) {
